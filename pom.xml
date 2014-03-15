@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <groupId>org.webjars</groupId>
     <artifactId>textAngular</artifactId>
-    <version>1.2.0</version>
+    <version>1.2.1-SNAPSHOT</version>
     <name>textAngular</name>
     <description>WebJar for textAngular</description>
     <url>http://webjars.org</url>
@@ -36,7 +36,7 @@
         <url>http://github.com/webjars/textAngular</url>
         <connection>scm:git:https://github.com/webjars/textAngular.git</connection>
         <developerConnection>scm:git:https://github.com/webjars/textAngular.git</developerConnection>
-        <tag>textAngular-1.2.0</tag>
+        <tag>HEAD</tag>
     </scm>
     
     <dependencies>

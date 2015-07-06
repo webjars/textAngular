@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <groupId>org.webjars</groupId>
     <artifactId>textAngular</artifactId>
-    <version>1.4.1-SNAPSHOT</version>
+    <version>1.4.1</version>
     <name>textAngular</name>
     <description>WebJar for textAngular</description>
     <url>http://webjars.org</url>
@@ -36,7 +36,7 @@
         <url>http://github.com/webjars/textAngular</url>
         <connection>scm:git:https://github.com/webjars/textAngular.git</connection>
         <developerConnection>scm:git:https://github.com/webjars/textAngular.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>textAngular-1.4.1</tag>
     </scm>
     
     <dependencies>
@@ -66,13 +66,13 @@
                         <goals><goal>run</goal></goals>
                         <configuration>
                             <target>
-                                <echo message="download archive"/>
-                                <get src="${upstream.url}" dest="${project.build.directory}/${project.artifactId}.zip"/>
-                                <echo message="unzip archive"/>
-                                <unzip src="${project.build.directory}/${project.artifactId}.zip" dest="${project.build.directory}"/>
-                                <echo message="moving resources"/>
+                                <echo message="download archive" />
+                                <get src="${upstream.url}" dest="${project.build.directory}/${project.artifactId}.zip" />
+                                <echo message="unzip archive" />
+                                <unzip src="${project.build.directory}/${project.artifactId}.zip" dest="${project.build.directory}" />
+                                <echo message="moving resources" />
                                 <move todir="${destDir}">
-                                    <fileset dir="${project.build.directory}/${project.artifactId}-${upstream.version}/dist"/>
+                                    <fileset dir="${project.build.directory}/${project.artifactId}-${upstream.version}/dist" />
                                 </move>
                             </target>
                         </configuration>

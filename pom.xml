@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.sonatype.oss</groupId>
         <artifactId>oss-parent</artifactId>
@@ -11,18 +12,36 @@
     <packaging>jar</packaging>
     <groupId>org.webjars</groupId>
     <artifactId>textAngular</artifactId>
-    <version>1.4.2-SNAPSHOT</version>
+    <version>1.4.6</version>
     <name>textAngular</name>
     <description>WebJar for textAngular</description>
     <url>http://webjars.org</url>
 
-    <developers>
-        <developer>
-            <id>jamesward</id>
-            <name>James Ward</name>
-            <email>james@jamesward.org</email>
-        </developer>
-    </developers>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <upstream.version>1.4.6</upstream.version>
+        <upstream.url>https://github.com/fraywing/textAngular/archive</upstream.url>
+        <destDir>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${project.version}</destDir>
+        <requirejs>
+            {
+                "paths":{
+                    "textAngular": "textAngular",
+                    "textAngular-css":
+                    "textAngular",
+                    "textAngular-rangy": "textAngular-rangy.min",
+                    "textAngular-sanitize": "textAngular-sanitize.min",
+                    "textAngular-setup": "textAngularSetup"
+                },
+                "shim": {
+                    "textAngular-sanitize": ["angular"],
+                    "textAngular-setup": ["angular"],
+                    "textAngular": [ "angular", "textAngular-sanitize",
+                    "textAngular-rangy",
+                    "textAngular-setup" ]
+                }
+            }
+        </requirejs>
+    </properties>
 
     <licenses>
         <license>
@@ -32,47 +51,69 @@
         </license>
     </licenses>
 
+    <developers>
+        <developer>
+            <id>webjars</id>
+            <url>http://webjars.org</url>
+        </developer>
+    </developers>
+
     <scm>
         <url>http://github.com/webjars/textAngular</url>
         <connection>scm:git:https://github.com/webjars/textAngular.git</connection>
         <developerConnection>scm:git:https://github.com/webjars/textAngular.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>angularjs</artifactId>
-            <version>1.3.0</version>
+            <version>[1.3,)</version>
         </dependency>
     </dependencies>
-    
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <upstream.version>1.4.1</upstream.version>
-        <upstream.url>https://github.com/fraywing/textAngular/archive/v${upstream.version}.zip</upstream.url>
-        <destDir>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${upstream.version}</destDir>
-    </properties>
-    
+
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>wagon-maven-plugin</artifactId>
+                <version>1.0</version>
+                <executions>
+                    <execution>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>download-single</goal>
+                        </goals>
+                        <configuration>
+                            <url>${upstream.url}</url>
+                            <fromFile>v${upstream.version}.zip</fromFile>
+                            <toFile>${project.build.directory}/${project.artifactId}.zip</toFile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.7</version>
                 <executions>
                     <execution>
                         <phase>process-resources</phase>
-                        <goals><goal>run</goal></goals>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
                         <configuration>
                             <target>
-                                <echo message="download archive" />
-                                <get src="${upstream.url}" dest="${project.build.directory}/${project.artifactId}.zip" />
                                 <echo message="unzip archive" />
-                                <unzip src="${project.build.directory}/${project.artifactId}.zip" dest="${project.build.directory}" />
+                                <unzip
+                                    src="${project.build.directory}/${project.artifactId}.zip"
+                                    dest="${project.build.directory}" />
                                 <echo message="moving resources" />
                                 <move todir="${destDir}">
-                                    <fileset dir="${project.build.directory}/${project.artifactId}-${upstream.version}/dist" />
+                                    <fileset
+                                        dir="${project.build.directory}/textAngular-${upstream.version}/dist"
+                                        includes="**.js, **.css" />
                                 </move>
                             </target>
                         </configuration>
@@ -80,6 +121,61 @@
                 </executions>
             </plugin>
 
+            <plugin>
+                <groupId>com.google.code.maven-replacer-plugin</groupId>
+                <artifactId>replacer</artifactId>
+                <version>1.5.3</version>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>replace</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <includes>
+                        <include>
+                            ${project.build.directory}/classes/META-INF/resources/webjars/textAngular/*/css/*.css
+                        </include>
+                    </includes>
+                    <inputFilePattern>(.*).css</inputFilePattern>
+                    <outputFilePattern>$1-jsf.css</outputFilePattern>
+                    <replacements>
+                        <replacement>
+                            <token>url\('?+\.\.\/fonts\/([^\s\)?#']+)[\?#]{0,2}([^';]*)+?'?\)</token>
+                            <value>url("#{resource['webjars:textAngular/${project.version}/fonts/$1']}&amp;v=${project.version}&amp;#$2")</value>
+                        </replacement>
+                    </replacements>
+                    <regex>true</regex>
+                    <regexFlags>
+                        <regexFlag>CASE_INSENSITIVE</regexFlag>
+                    </regexFlags>
+                    <unescape>true</unescape>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.googlecode.todomap</groupId>
+                <artifactId>maven-jettygzip-plugin</artifactId>
+                <version>0.0.5</version>
+                <configuration>
+                    <webappDirectory>target/classes</webappDirectory>
+                    <outputDirectory>target/classes</outputDirectory>
+                    <extensions>
+                        <extension>js</extension>
+                        <extension>css</extension>
+                        <extension>less</extension>
+                    </extensions>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
@@ -98,6 +194,12 @@
                 </configuration>
             </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory>${project.basedir}/src/main/resources</directory>
+                <targetPath>${destDir}</targetPath>
+            </resource>
+        </resources>
     </build>
 
 </project>
